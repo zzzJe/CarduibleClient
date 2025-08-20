@@ -3,7 +3,7 @@
 
 #include "Pin.hpp"
 
-#define REGULAR_LOG 1
+#define REGULAR_LOG 0
 
 #define DEFAULT_V 250
 extern int customV;

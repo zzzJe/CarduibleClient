@@ -5,7 +5,6 @@
 SoftwareSerial BT(10, 11); // Bluetooth (RX, TX)
 
 char btReciving; // Recivings from BT
-bool racingTranferOngoing = false;
 
 void setup() {
   // Freq. in Serial Monitor
@@ -17,21 +16,35 @@ void setup() {
   BT.begin(9600);
 }
 
+using BtTrans = BtTransferState;
+
 void loop() {
   if (BT.available()) {
     btReciving = BT.read();
-    // Serial.print(btReciving);
+    switch ((unsigned char)btTransferState) {
+    case BtTrans::Angle:
+    case BtTrans::Throttle:
+    case BtTrans::Reverse:
+      handleRacingControl(btTransferState, btReciving);
+      btTransferState = BtTrans::None;
+      break;
+    case BtTrans::None:
+    default:
+      switch ((unsigned char)btReciving) {
+      case BtTrans::Angle:
+      case BtTrans::Throttle:
+      case BtTrans::Reverse:
+        btTransferState = btReciving;
+        break;
+      default:
+        handleRegularControl(btReciving);
+        break;
+      }
+      break;
+    }
   }
   if (Serial.available()) {
     btReciving = Serial.read();
     BT.print(btReciving);
-  }
-
-  if (btReciving == 0xFF) {
-
-  } else if (1) {
-    // handleRacingControl();
-  } else {
-    handleRegularControl(btReciving);
   }
 }

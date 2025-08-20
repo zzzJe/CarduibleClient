@@ -1,9 +1,12 @@
 #include <Arduino.h>
 #include "RacingControl.hpp"
+#include "RegularControl.hpp"
 
 int angle = 0;
 int throttle = 0;
 bool reverse = false;
+
+BtTransferState btTransferState = None;
 
 int clamp(int target, int min, int max) {
   return target > max
@@ -14,30 +17,32 @@ int clamp(int target, int min, int max) {
 }
 
 int amplify(int target, int fromMin, int fromMax, int toMin, int toMax) {
-  float ratio = (float)(target - fromMin) / (fromMax - fromMin);
+  float ratio = ((float)target - fromMin) / (fromMax - fromMin);
   float mapping = ratio; // reserve for nonlinear mapping
   return (int)(mapping * (toMax - toMin)) + toMin;
 }
 
-void handleRacingControl(char angleInput, char throttleInput, char reverseInput) {
-  // NOTE:
-  // clamp here is redundent b/c operation below use another layer of clamp
-  // angle = clamp((int)angleInput, -MAX_ANGLE, MAX_ANGLE);
-  angle = (int)angleInput;
-  throttle = clamp((int)throttleInput, 0, 100);
-  reverse = (bool)reverseInput;
+using BtTrans = BtTransferState;
+
+void handleRacingControl(BtTransferState state, char input) {
+  switch ((unsigned char)state) {
+  case BtTrans::Angle:
+    // NOTE:
+    // clamp here is redundent b/c operation below use another layer of clamp
+    // angle = clamp((int)input, -MAX_ANGLE, MAX_ANGLE) - MAX_ANGLE;
+    angle = (int)input - MAX_ANGLE;
+    break;
+  case BtTrans::Throttle:
+    throttle = clamp((int)input, 0, 100);
+    break;
+  case BtTrans::Reverse:
+    reverse = (int)input;
+    break;
+  }
 
   if (RACING_LOG) {
-    Serial.println("Racing:");
-    // angle
-    Serial.print(" angle: ");
-    Serial.println((int)angleInput);
-    // throttle
-    Serial.print(" throttle: ");
-    Serial.println((int)throttleInput);
-    // reverse
-    Serial.print(" reverse: ");
-    Serial.println(reverse);
+    Serial.print("Racing:");
+    Serial.println((unsigned char)input);
   }
 
   // NOTE:
@@ -48,24 +53,26 @@ void handleRacingControl(char angleInput, char throttleInput, char reverseInput)
   int magnitude = amplify(throttle, 0, 100, 0, MAX_SPEED);
   int right = amplify(clamp(angle, -MAX_ANGLE, 0), -MAX_ANGLE, 0, -magnitude, magnitude);
   int left = amplify(clamp(-angle, -MAX_ANGLE, 0), -MAX_ANGLE, 0, -magnitude, magnitude);
+  // int right = 0;
+  // int left = 0;
 
   // NOTE:
   // need to check sign of `left`, `right`
   // for each motor：
   //   +: H1L0
   //   -: H0L1
-  if (right < 0) {
+  if (right < 0 && !reverse || right > 0 && reverse) {
     analogWrite(RightMotorH, 0);
-    analogWrite(RightMotorL, -right);
+    analogWrite(RightMotorL, ABS(right));
   } else {
-    analogWrite(RightMotorH, right);
+    analogWrite(RightMotorH, ABS(right));
     analogWrite(RightMotorL, 0);
   }
-  if (left < 0) {
+  if (left < 0 && !reverse || left > 0 && reverse) {
     analogWrite(LeftMotorH, 0);
-    analogWrite(LeftMotorL, -left);
+    analogWrite(LeftMotorL, ABS(left));
   } else {
-    analogWrite(LeftMotorH, left);
+    analogWrite(LeftMotorH, ABS(left));
     analogWrite(LeftMotorL, 0);
   }
 }
