@@ -30,7 +30,7 @@ void handleRacingControl(BtTransferState state, char input) {
     // NOTE:
     // clamp here is redundent b/c operation below use another layer of clamp
     // angle = clamp((int)input, -MAX_ANGLE, MAX_ANGLE) - MAX_ANGLE;
-    angle = (int)input - MAX_ANGLE;
+    angle = (int)(unsigned char)input - MAX_ANGLE;
     break;
   case BtTrans::Throttle:
     throttle = clamp((int)input, 0, 100);
@@ -51,28 +51,26 @@ void handleRacingControl(BtTransferState state, char input) {
   // R: angle 90~-90 -> clamp to 0~-90 -> amp to 250~-250
   // L: same as R, but with negative angle input
   int magnitude = amplify(throttle, 0, 100, 0, MAX_SPEED);
-  int right = amplify(clamp(angle, -MAX_ANGLE, 0), -MAX_ANGLE, 0, -magnitude, magnitude);
-  int left = amplify(clamp(-angle, -MAX_ANGLE, 0), -MAX_ANGLE, 0, -magnitude, magnitude);
-  // int right = 0;
-  // int left = 0;
+  int right = amplify(clamp(angle, -MAX_ANGLE, 0), -MAX_ANGLE, 0, -magnitude, magnitude) * (reverse ? -1 : 1);
+  int left = amplify(clamp(-angle, -MAX_ANGLE, 0), -MAX_ANGLE, 0, -magnitude, magnitude) * (reverse ? -1 : 1);
 
   // NOTE:
   // need to check sign of `left`, `right`
   // for each motor：
   //   +: H1L0
   //   -: H0L1
-  if (right < 0 && !reverse || right > 0 && reverse) {
+  if (right < 0) {
     analogWrite(RightMotorH, 0);
-    analogWrite(RightMotorL, ABS(right));
+    analogWrite(RightMotorL, -right);
   } else {
-    analogWrite(RightMotorH, ABS(right));
+    analogWrite(RightMotorH, right);
     analogWrite(RightMotorL, 0);
   }
-  if (left < 0 && !reverse || left > 0 && reverse) {
+  if (left < 0) {
     analogWrite(LeftMotorH, 0);
-    analogWrite(LeftMotorL, ABS(left));
+    analogWrite(LeftMotorL, -left);
   } else {
-    analogWrite(LeftMotorH, ABS(left));
+    analogWrite(LeftMotorH, left);
     analogWrite(LeftMotorL, 0);
   }
 }

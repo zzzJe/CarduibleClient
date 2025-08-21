@@ -4,38 +4,38 @@
 int customV = 0;
 
 void forward(int v) {
-  analogWrite(RightMotorH, 0);
-  analogWrite(LeftMotorH, 0);
-  analogWrite(RightMotorL, v);
-  analogWrite(LeftMotorL, v);
+  analogWrite(RightMotorH, v);
+  analogWrite(RightMotorL, 0);
+  analogWrite(LeftMotorH, v);
+  analogWrite(LeftMotorL, 0);
 }
 
 void backward(int v) {
-  analogWrite(RightMotorL, 0);
-  analogWrite(LeftMotorL, 0);
-  analogWrite(RightMotorH, v);
-  analogWrite(LeftMotorH, v);
+  analogWrite(RightMotorH, 0);
+  analogWrite(RightMotorL, v);
+  analogWrite(LeftMotorH, 0);
+  analogWrite(LeftMotorL, v);
 }
 
 void turnleft(int v) {
-  analogWrite(LeftMotorL, v);
-  analogWrite(RightMotorL, 0);
   analogWrite(RightMotorH, v);
+  analogWrite(RightMotorL, 0);
   analogWrite(LeftMotorH, 0);
+  analogWrite(LeftMotorL, v);
 }
 
 void turnright(int v) {
-  analogWrite(RightMotorL, v);
-  analogWrite(LeftMotorL, 0);
   analogWrite(RightMotorH, 0);
+  analogWrite(RightMotorL, v);
   analogWrite(LeftMotorH, v);
+  analogWrite(LeftMotorL, 0);
 }
 
 void stay() {
   analogWrite(RightMotorH, 0);
   analogWrite(RightMotorL, 0);
-  analogWrite(LeftMotorL, 0);
   analogWrite(LeftMotorH, 0);
+  analogWrite(LeftMotorL, 0);
 }
 
 void handleRegularControl(char directive) {
