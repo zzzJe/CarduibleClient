@@ -4,7 +4,7 @@
 #include "Pin.hpp"
 
 #define ABS(a) ((a) < 0 ? -(a) : (a))
-#define RACING_LOG 1
+#define RACING_LOG 0
 #define MAX_SPEED 250
 #define MAX_ANGLE 90
 
