@@ -4,7 +4,7 @@
 
 SoftwareSerial BT(10, 11); // Bluetooth (RX, TX)
 
-char btReciving; // Recivings from BT
+unsigned char btReciving;
 
 void setup() {
   // Freq. in Serial Monitor
@@ -20,8 +20,8 @@ using BtTrans = BtTransferState;
 
 void loop() {
   if (BT.available()) {
-    btReciving = BT.read();
-    switch ((unsigned char)btTransferState) {
+    btReciving = (unsigned char)BT.read();
+    switch (btTransferState) {
     case BtTrans::Angle:
     case BtTrans::Throttle:
     case BtTrans::Reverse:
@@ -30,7 +30,7 @@ void loop() {
       break;
     case BtTrans::None:
     default:
-      switch ((unsigned char)btReciving) {
+      switch (btReciving) {
       case BtTrans::Angle:
       case BtTrans::Throttle:
       case BtTrans::Reverse:

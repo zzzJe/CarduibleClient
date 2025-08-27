@@ -22,14 +22,14 @@ extern int throttle;
 extern bool reverse;
 
 enum BtTransferState {
-  Angle = 0xF0,
-  Throttle = 0xF1,
-  Reverse = 0xF2,
-  None,
+  Angle = (unsigned char)0xF0,
+  Throttle = (unsigned char)0xF1,
+  Reverse = (unsigned char)0xF2,
+  None = (unsigned char)0,
 };
 
 extern BtTransferState btTransferState;
 
-void handleRacingControl(BtTransferState state, char input);
+void handleRacingControl(BtTransferState state, unsigned char input);
 
 #endif

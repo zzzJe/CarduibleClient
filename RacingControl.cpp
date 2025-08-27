@@ -24,13 +24,13 @@ int amplify(int target, int fromMin, int fromMax, int toMin, int toMax) {
 
 using BtTrans = BtTransferState;
 
-void handleRacingControl(BtTransferState state, char input) {
-  switch ((unsigned char)state) {
+void handleRacingControl(BtTransferState state, unsigned char input) {
+  switch (state) {
   case BtTrans::Angle:
     // NOTE:
     // clamp here is redundent b/c operation below use another layer of clamp
     // angle = clamp((int)input, -MAX_ANGLE, MAX_ANGLE) - MAX_ANGLE;
-    angle = (int)(unsigned char)input - MAX_ANGLE;
+    angle = (int)input - MAX_ANGLE;
     break;
   case BtTrans::Throttle:
     throttle = clamp((int)input, 0, 100);
@@ -42,7 +42,7 @@ void handleRacingControl(BtTransferState state, char input) {
 
   if (RACING_LOG) {
     Serial.print("Racing:");
-    Serial.println((unsigned char)input);
+    Serial.println(input);
   }
 
   // NOTE:
