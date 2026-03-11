@@ -1,26 +1,12 @@
 #include <Arduino.h>
 #include "RacingControl.hpp"
-#include "RegularControl.hpp"
+#include "RacingUtil.hpp"
 
 int angle = 0;
 int throttle = 0;
 bool reverse = false;
 
 BtTransferState btTransferState = None;
-
-int clamp(int target, int min, int max) {
-  return target > max
-    ? max
-    : target < min
-    ? min
-    : target;
-}
-
-int amplify(int target, int fromMin, int fromMax, int toMin, int toMax) {
-  float ratio = ((float)target - fromMin) / (fromMax - fromMin);
-  float mapping = ratio; // reserve for nonlinear mapping
-  return (int)(mapping * (toMax - toMin)) + toMin;
-}
 
 using BtTrans = BtTransferState;
 
@@ -53,6 +39,12 @@ void handleRacingControl(BtTransferState state, unsigned char input) {
   int magnitude = amplify(throttle, 0, 100, 0, MAX_SPEED);
   int right = amplify(clamp(angle, -MAX_ANGLE, 0), -MAX_ANGLE, 0, -magnitude, magnitude) * (reverse ? -1 : 1);
   int left = amplify(clamp(-angle, -MAX_ANGLE, 0), -MAX_ANGLE, 0, -magnitude, magnitude) * (reverse ? -1 : 1);
+
+  // NOTE:
+  // this is for inertia system, but this requires experiment
+  // int counterWheel = differentialCounterWheelMap(angle, magnitude);
+  // int right = amplify(clamp(angle, -MAX_ANGLE, 0), -MAX_ANGLE, 0, counterWheel, magnitude) * (reverse ? -1 : 1);
+  // int left = amplify(clamp(-angle, -MAX_ANGLE, 0), -MAX_ANGLE, 0, counterWheel, magnitude) * (reverse ? -1 : 1);
 
   // NOTE:
   // need to check sign of `left`, `right`
