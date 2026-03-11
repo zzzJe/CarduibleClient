@@ -23,19 +23,19 @@ int amplify(int target, int fromMin, int fromMax, int toMin, int toMax) {
 /// reserve for future mapping
 /// to calculate sqrt(x), use `x * qrsqrt(x)`
 float qrsqrt(float number) {
-	long i;
-	float x2, y;
-	const float threehalfs = 1.5F;
+  long i;
+  float x2, y;
+  const float threehalfs = 1.5F;
 
-	x2 = number * 0.5F;
-	y = number;
-	i = *(long*)&y;
-	i = 0x5f3759df - (i >> 1);
-	y = *(float*)&i;
-	y = y * (threehalfs - (x2 * y * y));
+  x2 = number * 0.5F;
+  y = number;
+  i = *(long*)&y;
+  i = 0x5f3759df - (i >> 1);
+  y = *(float*)&i;
+  y = y * (threehalfs - (x2 * y * y));
   // y  = y * (threehalfs - (x2 * y * y));
 
-	return y;
+  return y;
 }
 
 /// NOTE:
